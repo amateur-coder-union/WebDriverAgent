@@ -265,6 +265,7 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
 
 - (BOOL)fb_scrollAncestorScrollViewByVectorWithinScrollViewFrame:(CGVector)vector inApplication:(XCUIApplication *)application error:(NSError **)error
 {
+#if !TARGET_OS_TV
   CGVector hitpointOffset = [self fb_hitPointOffsetForScrollingVector:vector];
 
   XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:application normalizedOffset:CGVectorMake(0.0, 0.0)];
@@ -308,6 +309,7 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
       }
     ];
   return [application fb_performAppiumTouchActions:gesture elementCache:nil error:error];
+#endif
 }
 
 @end

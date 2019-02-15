@@ -7,12 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <XCTest/XCTest.h>
+#import <UIKit/UIKit.h>
+#import "AppDelegate.h"
 
-#if !TARGET_OS_TV
-@interface XCUICoordinate (FBFix)
-
-- (CGPoint)fb_screenPoint;
-
-@end
-#endif
+int main(int argc, char * argv[]) {
+    @autoreleasepool {
+        return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+    }
+}
