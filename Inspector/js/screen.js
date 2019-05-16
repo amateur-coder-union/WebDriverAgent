@@ -19,30 +19,32 @@ require('css/screen.css');
 
 class Screen extends React.Component {
   componentWillMount() {
-     document.addEventListener('keydown', this.onKeyDown.bind(this), false);
+    document.addEventListener('keydown', this.onKeyDown.bind(this), false);
   }
 
   componentWillUnmount() {
-      document.removeEventListener('keydown', this.onKeyDown.bind(this), false);
+    document.removeEventListener('keydown', this.onKeyDown.bind(this), false);
   }
 
   render() {
     return (
       <div id="screen" className="section first">
-        <div className="section-caption">
-          Screen
-        </div>
+        <div className="section-caption">Screen</div>
         <div>
-          <Button onClick={(ev) => {this.home(ev); }} >
+          <Button
+            onClick={ev => {
+              this.home(ev);
+            }}
+          >
             Home
           </Button>
-          <Button onClick={this.props.refreshApp} >
-            Refresh
-          </Button>
+          <Button onClick={this.props.refreshApp}>Refresh</Button>
         </div>
         <div className="section-content-container">
-          <div className="screen-screenshot-container"
-            style={this.styleWithScreenSize()}>
+          <div
+            className="screen-screenshot-container"
+            style={this.styleWithScreenSize()}
+          >
             {this.renderScreenshot()}
             {this.renderHighlightedNode()}
           </div>
@@ -54,13 +56,13 @@ class Screen extends React.Component {
   gestureRecognizer() {
     if (!this._gestureRecognizer) {
       this._gestureRecognizer = new GestureRecognizer({
-        onClick: (ev) => {
+        onClick: ev => {
           this.onScreenShotClick(ev);
         },
-        onDrag: (params) => {
+        onDrag: params => {
           this.onScreenShotDrag(params);
         },
-        onKeyDown: (key) => {
+        onKeyDown: key => {
           this.onScreenShotKeyDown(key);
         },
       });
@@ -81,8 +83,10 @@ class Screen extends React.Component {
   }
 
   onScreenShotDrag(params) {
-    var fromX = params.origin.x - document.getElementById('screenshot').offsetLeft;
-    var fromY = params.origin.y - document.getElementById('screenshot').offsetTop;
+    var fromX =
+      params.origin.x - document.getElementById('screenshot').offsetLeft;
+    var fromY =
+      params.origin.y - document.getElementById('screenshot').offsetTop;
     var toX = params.end.x - document.getElementById('screenshot').offsetLeft;
     var toY = params.end.y - document.getElementById('screenshot').offsetTop;
 
@@ -91,24 +95,22 @@ class Screen extends React.Component {
     toX = this.scaleCoord(toX);
     toY = this.scaleCoord(toY);
 
-    HTTP.get(
-      'status', (status_result) => {
-        var session_id = status_result.sessionId;
-        HTTP.post(
-          'session/' + session_id + '/wda/element/0/dragfromtoforduration',
-          JSON.stringify({
-            'fromX': fromX,
-            'fromY': fromY,
-            'toX': toX,
-            'toY': toY,
-            'duration': params.duration,
-          }),
-          (tap_result) => {
-            this.props.refreshApp();
-          },
-        );
-      },
-    );
+    HTTP.get('status', status_result => {
+      var session_id = status_result.sessionId;
+      HTTP.post(
+        'session/' + session_id + '/wda/element/0/dragfromtoforduration',
+        JSON.stringify({
+          fromX: fromX,
+          fromY: fromY,
+          toX: toX,
+          toY: toY,
+          duration: params.duration,
+        }),
+        tap_result => {
+          this.props.refreshApp();
+        }
+      );
+    });
   }
 
   scaleCoord(coord) {
@@ -123,38 +125,34 @@ class Screen extends React.Component {
     x = this.scaleCoord(x);
     y = this.scaleCoord(y);
 
-    HTTP.get(
-      'status', (status_result) => {
-        var session_id = status_result.sessionId;
-        HTTP.post(
-          'session/' + session_id + '/wda/tap/0',
-          JSON.stringify({
-            'x': x,
-            'y': y,
-          }),
-          (tap_result) => {
-            this.props.refreshApp();
-          },
-        );
-      },
-    );
+    HTTP.get('status', status_result => {
+      var session_id = status_result.sessionId;
+      HTTP.post(
+        'session/' + session_id + '/wda/tap/0',
+        JSON.stringify({
+          x: x,
+          y: y,
+        }),
+        tap_result => {
+          this.props.refreshApp();
+        }
+      );
+    });
   }
 
   onScreenShotKeyDown(key) {
-    HTTP.get(
-      'status', (status_result) => {
-        var session_id = status_result.sessionId;
-        HTTP.post(
-          'session/' + session_id + '/wda/keys',
-          JSON.stringify({
-            'value': [key],
-          }),
-          (tap_result) => {
-            this.props.refreshApp();
-          },
-        );
-      },
-    );
+    HTTP.get('status', status_result => {
+      var session_id = status_result.sessionId;
+      HTTP.post(
+        'session/' + session_id + '/wda/keys',
+        JSON.stringify({
+          value: [key],
+        }),
+        tap_result => {
+          this.props.refreshApp();
+        }
+      );
+    });
   }
 
   onMouseDown(ev) {
@@ -174,13 +172,9 @@ class Screen extends React.Component {
   }
 
   home(ev) {
-    HTTP.post(
-      '/wda/homescreen',
-      JSON.stringify({}),
-      (result) => {
-        this.props.refreshApp();
-      },
-    );
+    HTTP.post('/wda/homescreen', JSON.stringify({}), result => {
+      this.props.refreshApp();
+    });
   }
 
   renderScreenshot() {
@@ -189,15 +183,14 @@ class Screen extends React.Component {
         className="screen-screenshot"
         src={this.screenshot().source}
         style={this.styleWithScreenSize()}
-        onMouseDown={(ev) => this.onMouseDown(ev)}
-        onMouseMove={(ev) => this.onMouseMove(ev)}
-        onMouseUp={(ev) => this.onMouseUp(ev)}
+        onMouseDown={ev => this.onMouseDown(ev)}
+        onMouseMove={ev => this.onMouseMove(ev)}
+        onMouseUp={ev => this.onMouseUp(ev)}
         draggable="false"
         id="screenshot"
       />
     );
   }
-
 
   renderHighlightedNode() {
     if (this.props.highlightedNode == null) {
@@ -208,7 +201,8 @@ class Screen extends React.Component {
     return (
       <div
         className="screen-highlighted-node"
-        style={this.styleForHighlightedNodeWithRect(rect)}/>
+        style={this.styleForHighlightedNodeWithRect(rect)}
+      />
     );
   }
 
@@ -224,14 +218,19 @@ class Screen extends React.Component {
     var pxPtScale = screenshot.width / this.props.rootNode.rect.size.width;
 
     // hide nodes with rect out of bound
-    if (rect.origin.x < 0 || rect.origin.x * pxPtScale >= screenshot.width ||
-      rect.origin.y < 0 || rect.origin.y * pxPtScale >= screenshot.height){
-        return {};
+    if (
+      rect.origin.x < 0 ||
+      rect.origin.x * pxPtScale >= screenshot.width ||
+      rect.origin.y < 0 ||
+      rect.origin.y * pxPtScale >= screenshot.height
+    ) {
+      return {};
     }
 
     return {
       left: rect.origin.x * scale * pxPtScale,
-      top: rect.origin.y * scale * pxPtScale - topOffset * scale - elementsMargins,
+      top:
+        rect.origin.y * scale * pxPtScale - topOffset * scale - elementsMargins,
       width: rect.size.width * scale * pxPtScale,
       height: rect.size.height * scale * pxPtScale,
     };
