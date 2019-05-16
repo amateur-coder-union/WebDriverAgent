@@ -12,6 +12,7 @@
 #import "FBElementCache.h"
 #import "FBResponseFilePayload.h"
 #import "FBResponseJSONPayload.h"
+#import "FBResponseDataPayload.h"
 #import "FBSession.h"
 #import "FBMathUtils.h"
 #import "FBConfiguration.h"
@@ -71,6 +72,11 @@ id<FBResponsePayload> FBResponseWithErrorFormat(NSString *format, ...)
   id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusUnhandled, errorMessage);
   va_end(argList);
   return payload;
+}
+
+id<FBResponsePayload> FBResponseWithBlob(id data)
+{
+  return [[FBResponseDataPayload alloc] initWithNSData:data];
 }
 
 id<FBResponsePayload> FBResponseWithStatus(FBCommandStatus status, id object)

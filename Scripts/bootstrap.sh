@@ -79,7 +79,7 @@ function build_inspector() {
   cd "$INSPECTOR_DIR"
 
   echo "Fetching Inspector dependencies..."
-  npm install
+  yarn install
 
   echo "Validating Inspector"
   "$INSPECTOR_DIR"/node_modules/.bin/eslint js/*

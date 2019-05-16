@@ -32,29 +32,30 @@ NSString *const FBElementNotVisibleException = @"FBElementNotVisibleException";
   static dispatch_once_t onceExceptionsMapping;
   dispatch_once(&onceExceptionsMapping, ^{
     exceptionsMapping = @{
-      FBApplicationDeadlockDetectedException: @[@(FBCommandStatusApplicationDeadlockDetected)],
-      FBSessionDoesNotExistException: @[@(FBCommandStatusNoSuchSession)],
-      FBInvalidArgumentException: @[@(FBCommandStatusInvalidArgument)],
-      FBElementAttributeUnknownException: @[@(FBCommandStatusInvalidSelector)],
-      FBAlertObstructingElementException: @[@(FBCommandStatusUnexpectedAlertPresent), @"Alert is obstructing view"],
-      FBApplicationCrashedException: @[@(FBCommandStatusApplicationCrashDetected)],
-      FBInvalidXPathException: @[@(FBCommandStatusInvalidXPathSelector)],
-      FBClassChainQueryParseException: @[@(FBCommandStatusInvalidSelector)],
-      FBElementNotVisibleException: @[@(FBCommandStatusElementNotVisible)],
-    };
+                          FBApplicationDeadlockDetectedException: @[@(FBCommandStatusApplicationDeadlockDetected)],
+                          FBSessionDoesNotExistException: @[@(FBCommandStatusNoSuchSession)],
+                          FBInvalidArgumentException: @[@(FBCommandStatusInvalidArgument)],
+                          FBElementAttributeUnknownException: @[@(FBCommandStatusInvalidSelector)],
+                          FBAlertObstructingElementException: @[@(FBCommandStatusUnexpectedAlertPresent), @"Alert is obstructing view"],
+                          FBApplicationCrashedException: @[@(FBCommandStatusApplicationCrashDetected)],
+                          FBInvalidXPathException: @[@(FBCommandStatusInvalidXPathSelector)],
+                          FBClassChainQueryParseException: @[@(FBCommandStatusInvalidSelector)],
+                          FBElementNotVisibleException: @[@(FBCommandStatusElementNotVisible)],
+                          };
   });
-
+  
   NSArray *status = exceptionsMapping[exception.name];
   if (nil == status) {
     return NO;
   }
-
+  
   NSUInteger statusValue = [[status objectAtIndex:0] integerValue];
   id<FBResponsePayload> payload = [status count] > 1
-    ? FBResponseWithStatus(statusValue, [status objectAtIndex:1])
-    : FBResponseWithStatus(statusValue, [exception reason]);
+  ? FBResponseWithStatus(statusValue, [status objectAtIndex:1])
+  : FBResponseWithStatus(statusValue, [exception reason]);
   [payload dispatchWithResponse:response];
   return YES;
 }
 
 @end
+

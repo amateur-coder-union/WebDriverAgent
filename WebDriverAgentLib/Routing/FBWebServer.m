@@ -72,7 +72,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   [FBLogger logFmt:@"Built at %s %s", __DATE__, __TIME__];
   self.exceptionHandler = [FBExceptionHandler new];
   [self startHTTPServer];
-  [self initScreenshotsBroadcaster];
+  // [self initScreenshotsBroadcaster];
 
   self.keepAlive = YES;
   NSRunLoop *runLoop = [NSRunLoop mainRunLoop];
@@ -151,7 +151,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 - (void)stopServing
 {
   [FBSession.activeSession kill];
-  [self stopScreenshotsBroadcaster];
+  // [self stopScreenshotsBroadcaster];
   if (self.server.isRunning) {
     [self.server stop:NO];
   }

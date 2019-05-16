@@ -12,6 +12,8 @@
 		31EC77FD224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h in Headers */ = {isa = PBXBuildFile; fileRef = 31EC77FA224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h */; };
 		31EC77FE224F7D0600380FCD /* XCUIApplicationProcessQuiescence.m in Sources */ = {isa = PBXBuildFile; fileRef = 31EC77FB224F7D0600380FCD /* XCUIApplicationProcessQuiescence.m */; };
 		31EC77FF224F7D0600380FCD /* XCUIApplicationProcessQuiescence.m in Sources */ = {isa = PBXBuildFile; fileRef = 31EC77FB224F7D0600380FCD /* XCUIApplicationProcessQuiescence.m */; };
+		61D542DC228D07DC00A40579 /* FBResponseDataPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 61D542DA228D07DB00A40579 /* FBResponseDataPayload.m */; };
+		61D542DD228D07DC00A40579 /* FBResponseDataPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 61D542DB228D07DC00A40579 /* FBResponseDataPayload.h */; };
 		6385F4A7220A40760095BBDB /* XCUIApplicationProcessDelay.m in Sources */ = {isa = PBXBuildFile; fileRef = 6385F4A5220A40760095BBDB /* XCUIApplicationProcessDelay.m */; };
 		63CCF91221ECE4C700E94ABD /* FBImageIOScaler.h in Headers */ = {isa = PBXBuildFile; fileRef = 63CCF91021ECE4C700E94ABD /* FBImageIOScaler.h */; };
 		63CCF91321ECE4C700E94ABD /* FBImageIOScaler.m in Sources */ = {isa = PBXBuildFile; fileRef = 63CCF91121ECE4C700E94ABD /* FBImageIOScaler.m */; };
@@ -800,6 +802,8 @@
 		31EC77FA224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCUIApplicationProcessQuiescence.h; sourceTree = "<group>"; };
 		31EC77FB224F7D0600380FCD /* XCUIApplicationProcessQuiescence.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XCUIApplicationProcessQuiescence.m; sourceTree = "<group>"; };
 		44757A831D42CE8300ECF35E /* XCUIDeviceRotationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XCUIDeviceRotationTests.m; sourceTree = "<group>"; };
+		61D542DA228D07DB00A40579 /* FBResponseDataPayload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBResponseDataPayload.m; sourceTree = "<group>"; };
+		61D542DB228D07DC00A40579 /* FBResponseDataPayload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBResponseDataPayload.h; sourceTree = "<group>"; };
 		631B523421F6174300625362 /* FBImageIOScalerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBImageIOScalerTests.m; sourceTree = "<group>"; };
 		633E904A220DEE7F007CADF9 /* XCUIApplicationProcessDelay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCUIApplicationProcessDelay.h; sourceTree = "<group>"; };
 		6385F4A5220A40760095BBDB /* XCUIApplicationProcessDelay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XCUIApplicationProcessDelay.m; sourceTree = "<group>"; };
@@ -1487,6 +1491,8 @@
 		EE9AB7741CAEDF0C008C271F /* Routing */ = {
 			isa = PBXGroup;
 			children = (
+				61D542DB228D07DC00A40579 /* FBResponseDataPayload.h */,
+				61D542DA228D07DB00A40579 /* FBResponseDataPayload.m */,
 				EE9AB7751CAEDF0C008C271F /* FBCommandHandler.h */,
 				EE9AB7761CAEDF0C008C271F /* FBCommandStatus.h */,
 				EE9AB7791CAEDF0C008C271F /* FBElement.h */,
@@ -2196,6 +2202,7 @@
 				641EE70B2240CE2D00173FCB /* FBTVNavigationTracker.h in Headers */,
 				63CCF91221ECE4C700E94ABD /* FBImageIOScaler.h in Headers */,
 				EE158AE31CBD456F00A3E3F0 /* FBSession-Private.h in Headers */,
+				61D542DD228D07DC00A40579 /* FBResponseDataPayload.h in Headers */,
 				716E0BCE1E917E810087A825 /* NSString+FBXMLSafeString.h in Headers */,
 				EE158ACF1CBD456F00A3E3F0 /* FBCommandStatus.h in Headers */,
 				EE35AD2D1E3B77D600A02D78 /* XCElementSnapshot.h in Headers */,
@@ -2472,6 +2479,7 @@
 					};
 					EEF988291C486603005CA669 = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = C4L2SM356C;
 					};
 				};
 			};
@@ -2756,6 +2764,7 @@
 				EE158AF61CBD456F00A3E3F0 /* FBApplication.m in Sources */,
 				715AFAC21FFA29180053896D /* FBScreen.m in Sources */,
 				EE35AD7C1E3B80C000A02D78 /* FBXCTestDaemonsProxy.m in Sources */,
+				61D542DC228D07DC00A40579 /* FBResponseDataPayload.m in Sources */,
 				EE158AB51CBD456F00A3E3F0 /* XCUIElement+FBTap.m in Sources */,
 				EE18883B1DA661C400307AA8 /* FBMathUtils.m in Sources */,
 				7157B292221DADD2001C348C /* FBXCAXClientProxy.m in Sources */,
@@ -3400,6 +3409,7 @@
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = C4L2SM356C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -3411,7 +3421,7 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.flasco.wda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USES_XCTRUNNER = YES;
 			};
@@ -3422,6 +3432,7 @@
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
+				DEVELOPMENT_TEAM = C4L2SM356C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -3433,7 +3444,7 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.flasco.wda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USES_XCTRUNNER = YES;
 			};
