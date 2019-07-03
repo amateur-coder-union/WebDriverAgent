@@ -10,6 +10,7 @@
 #import "FBScreenshotCommands.h"
 
 #import "XCUIDevice+FBHelpers.h"
+#import "FBImageIOScaler.h"
 
 @implementation FBScreenshotCommands
 
@@ -20,11 +21,11 @@
   return
   @[
     [[FBRoute GET:@"/screenshot"].withoutSession respondWithTarget:self action:@selector(handleGetScreenshot:)],
+    [[FBRoute GET:@"/screenshot/lowq"].withoutSession respondWithTarget:self action:@selector(handleGetLowQScreenshot:)],
     [[FBRoute GET:@"/screenshot/blob"].withoutSession respondWithTarget:self action:@selector(handleGetScreenshotWithBlob:)],
     [[FBRoute GET:@"/screenshot"] respondWithTarget:self action:@selector(handleGetScreenshot:)],
   ];
 }
-
 
 #pragma mark - Commands
 
@@ -36,6 +37,21 @@
     return FBResponseWithError(error);
   }
   NSString *screenshot = [screenshotData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+  return FBResponseWithObject(screenshot);
+}
+
++ (id<FBResponsePayload>)handleGetLowQScreenshot:(FBRouteRequest *)request
+{
+  NSError *error;
+  NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
+  if (nil == screenshotData) {
+    return FBResponseWithError(error);
+  }
+  NSData *scaled = [FBImageIOScaler scaledImageWithImage:screenshotData
+                                           scalingFactor:1.0f
+                                      compressionQuality:0.5f];
+
+  NSString *screenshot = [scaled base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
   return FBResponseWithObject(screenshot);
 }
 

@@ -34,6 +34,7 @@ extern const CGFloat FBMaxCompressionQuality;
  @param compressionQuality the compression quality in range 0.0..1.0 (0.0 for max. compression and 1.0 for lossless compression)
  */
 - (void)submitImage:(NSData *)image scalingFactor:(CGFloat)scalingFactor compressionQuality:(CGFloat)compressionQuality completionHandler:(void (^)(NSData *))completionHandler;
++ (nullable NSData *)scaledImageWithImage:(NSData *)image scalingFactor:(CGFloat)scalingFactor compressionQuality:(CGFloat)compressionQuality;
 
 @end
 
