@@ -55,7 +55,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     if (next == nil) {
       return;
     }
-    NSData *scaled = [self scaledImageWithImage:next
+    NSData *scaled = [FBImageIOScaler scaledImageWithImage:next
                                   scalingFactor:scalingFactor
                               compressionQuality:compressionQuality];
     if (scaled == nil) {
@@ -91,7 +91,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   return jpegData;
 }
 
-- (nullable NSData *)jpegDataWithImage:(CGImageRef)imageRef compressionQuality:(CGFloat)compressionQuality
++ (nullable NSData *)jpegDataWithImage:(CGImageRef)imageRef compressionQuality:(CGFloat)compressionQuality
 {
   NSMutableData *newImageData = [NSMutableData data];
   CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((CFMutableDataRef)newImageData, kUTTypeJPEG, 1, NULL);

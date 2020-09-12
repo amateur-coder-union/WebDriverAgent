@@ -8,7 +8,7 @@
 
 #import "FBResponseDataPayload.h"
 
-#import <RoutingHTTPServer/RouteResponse.h>
+#import "RouteResponse.h"
 
 @interface FBResponseDataPayload ()
 
