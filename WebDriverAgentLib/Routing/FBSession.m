@@ -23,6 +23,12 @@
 #import "XCUIElement.h"
 
 NSString *const FBApplicationCrashedException = @"FBApplicationCrashedException";
+/*!
+ The intial value for the default application property.
+ Setting this value to `defaultActiveApplication` property forces WDA to use the internal
+ automated algorithm to determine the active on-screen application
+ */
+NSString *const FBDefaultApplicationAuto = @"auto";
 
 @interface FBSession ()
 @property (nonatomic) NSString *testedApplicationBundleId;
@@ -64,10 +70,10 @@ NSString *const FBApplicationCrashedException = @"FBApplicationCrashedException"
 
 @implementation FBSession
 
-static FBSession *_activeSession;
+static FBSession *_activeSession = nil;
 + (instancetype)activeSession
 {
-  return _activeSession ?: [FBSession initWithApplication:nil];
+  return _activeSession;
 }
 
 + (void)markSessionActive:(FBSession *)session
@@ -95,6 +101,7 @@ static FBSession *_activeSession;
   session.alertsMonitor = nil;
   session.defaultAlertAction = nil;
   session.identifier = [[NSUUID UUID] UUIDString];
+  session.defaultActiveApplication = FBDefaultApplicationAuto;
   session.testedApplicationBundleId = nil;
   NSMutableDictionary *apps = [NSMutableDictionary dictionary];
   if (application) {
@@ -112,7 +119,7 @@ static FBSession *_activeSession;
   FBSession *session = [self.class initWithApplication:application];
   session.alertsMonitor = [[FBAlertsMonitor alloc] init];
   session.alertsMonitor.delegate = (id<FBAlertsMonitorDelegate>)session;
-  session.alertsMonitor.application = FBApplication.fb_activeApplication;
+  session.alertsMonitor.application = application;
   session.defaultAlertAction = [defaultAlertAction lowercaseString];
   [session.alertsMonitor enable];
   return session;
@@ -133,7 +140,10 @@ static FBSession *_activeSession;
 
 - (FBApplication *)activeApplication
 {
-  FBApplication *application = [FBApplication fb_activeApplication];
+  NSString *defaultBundleId = [self.defaultActiveApplication isEqualToString:FBDefaultApplicationAuto]
+    ? nil
+    : self.defaultActiveApplication;
+  FBApplication *application = [FBApplication fb_activeApplicationWithDefaultBundleId:defaultBundleId];
   FBApplication *testedApplication = nil;
   if (self.testedApplicationBundleId) {
     testedApplication = [self.applications objectForKey:self.testedApplicationBundleId];
@@ -172,10 +182,10 @@ static FBSession *_activeSession;
   return NO;
 }
 
-- (void)launchApplicationWithBundleId:(NSString *)bundleIdentifier
-              shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
-                            arguments:(nullable NSArray<NSString *> *)arguments
-                          environment:(nullable NSDictionary <NSString *, NSString *> *)environment
+- (FBApplication *)launchApplicationWithBundleId:(NSString *)bundleIdentifier
+                         shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
+                                       arguments:(nullable NSArray<NSString *> *)arguments
+                                     environment:(nullable NSDictionary <NSString *, NSString *> *)environment
 {
   FBApplication *app = [self registerApplicationWithBundleId:bundleIdentifier];
   if (app.fb_state < 2) {
@@ -187,14 +197,17 @@ static FBSession *_activeSession;
     app.launchArguments = arguments ?: @[];
     app.launchEnvironment = environment ?: @{};
     [app launch];
+  } else {
+    [app fb_activate];
   }
-  [app fb_activate];
+  return app;
 }
 
-- (void)activateApplicationWithBundleId:(NSString *)bundleIdentifier
+- (FBApplication *)activateApplicationWithBundleId:(NSString *)bundleIdentifier
 {
   FBApplication *app = [self registerApplicationWithBundleId:bundleIdentifier];
   [app fb_activate];
+  return app;
 }
 
 - (BOOL)terminateApplicationWithBundleId:(NSString *)bundleIdentifier

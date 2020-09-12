@@ -16,6 +16,7 @@
 #import "NSPredicate+FBFormat.h"
 #import "XCElementSnapshot.h"
 #import "XCElementSnapshot+FBHelpers.h"
+#import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
@@ -28,7 +29,7 @@
 + (NSArray<XCUIElement *> *)fb_extractMatchingElementsFromQuery:(XCUIElementQuery *)query shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   if (!shouldReturnAfterFirstMatch) {
-    return query.allElementsBoundByAccessibilityElement;
+    return query.fb_allMatches;
   }
   XCUIElement *matchedElement = query.fb_firstMatch;
   return matchedElement ? @[matchedElement] : @[];
@@ -47,7 +48,7 @@
       return result.copy;
     }
   }
-  XCUIElementQuery *query = [self descendantsMatchingType:type];
+  XCUIElementQuery *query = [self.fb_query descendantsMatchingType:type];
   [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
   return result.copy;
 }
@@ -83,8 +84,8 @@
   [NSString stringWithFormat:@"%@ == '%@'", property, value];
 
   NSPredicate *predicate = [FBPredicate predicateWithFormat:operation];
-  XCUIElementQuery *query = [[self descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:predicate];
-  NSArray *childElements = query.allElementsBoundByAccessibilityElement;
+  XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:predicate];
+  NSArray *childElements = query.fb_allMatches;
   [results addObjectsFromArray:childElements];
 }
 
@@ -96,13 +97,13 @@
   NSPredicate *formattedPredicate = [NSPredicate fb_formatSearchPredicate:predicate];
   NSMutableArray<XCUIElement *> *result = [NSMutableArray array];
   // Include self element into predicate search
-  if ([formattedPredicate evaluateWithObject:self.fb_lastSnapshot]) {
+  if ([formattedPredicate evaluateWithObject:self.fb_cachedSnapshot ?: self.fb_lastSnapshot]) {
     if (shouldReturnAfterFirstMatch) {
       return @[self];
     }
     [result addObject:self];
   }
-  XCUIElementQuery *query = [[self descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:formattedPredicate];
+  XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:formattedPredicate];
   [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
   return result.copy;
 }
@@ -122,7 +123,7 @@
     XCElementSnapshot *snapshot = matchingSnapshots.firstObject;
     matchingSnapshots = @[snapshot];
   }
-  return [self fb_filterDescendantsWithSnapshots:matchingSnapshots];
+  return [self fb_filterDescendantsWithSnapshots:matchingSnapshots selfUID:nil onlyChildren:NO];
 }
 
 
@@ -137,7 +138,7 @@
       return result.copy;
     }
   }
-  XCUIElementQuery *query = [[self descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:accessibilityId];
+  XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:accessibilityId];
   [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
   return result.copy;
 }

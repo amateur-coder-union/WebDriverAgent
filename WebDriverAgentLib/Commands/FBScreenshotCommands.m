@@ -34,7 +34,7 @@
   NSError *error;
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
   if (nil == screenshotData) {
-    return FBResponseWithError(error);
+    return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:error.description traceback:nil]);
   }
   NSString *screenshot = [screenshotData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
   return FBResponseWithObject(screenshot);
@@ -45,7 +45,7 @@
   NSError *error;
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
   if (nil == screenshotData) {
-    return FBResponseWithError(error);
+    return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:error.description traceback:nil]);
   }
   NSData *scaled = [FBImageIOScaler scaledImageWithImage:screenshotData
                                            scalingFactor:1.0f
@@ -60,7 +60,7 @@
   NSError *error;
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
   if (nil == screenshotData) {
-    return FBResponseWithError(error);
+    return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:error.description traceback:nil]);
   }
   return FBResponseWithBlob(screenshotData);
 }

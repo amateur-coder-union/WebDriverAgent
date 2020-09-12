@@ -15,30 +15,61 @@
 #import "NSString+FBVisualLength.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBUtilities.h"
+#import "FBXCodeCompatibility.h"
+
+#define MAX_CLEAR_RETRIES 2
+#define MAX_PREPARE_TRIES 2
+
+
+@interface NSString (FBRepeat)
+
+- (NSString *)fb_repeatTimes:(NSUInteger)times;
+
+@end
+
+@implementation NSString (FBRepeat)
+
+- (NSString *)fb_repeatTimes:(NSUInteger)times {
+  return [@"" stringByPaddingToLength:times * self.length
+                           withString:self
+                      startingAtIndex:0];
+}
+
+@end
+
 
 @implementation XCUIElement (FBTyping)
 
+- (BOOL)fb_hasKeyboardFocus
+{
+  // https://developer.apple.com/documentation/xctest/xcuielement/1500968-typetext?language=objc
+  // > The element or a descendant must have keyboard focus; otherwise an error is raised.
+  return self.hasKeyboardFocus || [[[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
+   matchingPredicate:[NSPredicate predicateWithFormat:@"hasKeyboardFocus == YES"]]
+  count] > 0;
+}
+
 - (BOOL)fb_prepareForTextInputWithError:(NSError **)error
 {
-  BOOL isKeyboardAlreadyVisible = [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error];
-  if (isKeyboardAlreadyVisible && self.hasKeyboardFocus) {
+  if (self.fb_hasKeyboardFocus) {
     return YES;
   }
-  
-  // Sometimes the keyboard is not opened after the first tap, so we need to retry
-  for (int tryNum = 0; tryNum < 2; ++tryNum) {
-    if (![self fb_tapWithError:error]) {
-      return NO;
-    }
-    if (isKeyboardAlreadyVisible) {
+
+// There is no possibility to open the keyboard by tapping a field in TvOS
+#if !TARGET_OS_TV
+  int tries = 0;
+  do {
+    [self fb_tapWithError:nil];
+    // It might take some time to update the UI
+    [self fb_waitUntilSnapshotIsStableWithTimeout:1];
+    if (self.fb_hasKeyboardFocus) {
       return YES;
     }
-    [self fb_waitUntilSnapshotIsStable];
-    if ([FBKeyboard waitUntilVisibleForApplication:self.application timeout:1. error:error]) {
-      return YES;
-    }
-  }
-  return NO;
+  } while (++tries < MAX_PREPARE_TRIES);
+#endif
+
+  NSString *description = [NSString stringWithFormat:@"'%@' is not ready for a text input. Neither the accessibility element itself nor its accessible descendants have the input focus", self.description];
+  return [[[FBErrorBuilder builder] withDescription:description] buildError:error];
 }
 
 - (BOOL)fb_typeText:(NSString *)text error:(NSError **)error
@@ -48,25 +79,21 @@
 
 - (BOOL)fb_typeText:(NSString *)text frequency:(NSUInteger)frequency error:(NSError **)error
 {
-  // There is no ability to open text field via tap
-#if TARGET_OS_TV
-  if (!self.hasKeyboardFocus) {
-    return [[[FBErrorBuilder builder] withDescription:@"Keyboard is not opened."] buildError:error];
-  }
-#else
-  if (![self fb_prepareForTextInputWithError:error]) {
-    return NO;
-  }
-#endif
-  if (![FBKeyboard typeText:text frequency:frequency error:error]) {
-    return NO;
-  }
-  return YES;
+  return [self fb_prepareForTextInputWithError:error]
+    && [FBKeyboard typeText:text frequency:frequency error:error];
 }
 
 - (BOOL)fb_clearTextWithError:(NSError **)error
 {
-  if (0 == [self.value fb_visualLength]) {
+  id currentValue = self.value;
+  if (nil != currentValue && ![currentValue isKindOfClass:NSString.class]) {
+    return [[[FBErrorBuilder builder]
+               withDescriptionFormat:@"The value of '%@' element is not a string and thus cannot be cleared", self.description]
+              buildError:error];
+  }
+  
+  if (nil == currentValue || 0 == [currentValue fb_visualLength]) {
+    // Short circuit if the content is not present
     return YES;
   }
 
@@ -74,19 +101,37 @@
     return NO;
   }
   
-  NSUInteger preClearTextLength = 0;
-  NSData *encodedSequence = [@"\\u0008\\u007F" dataUsingEncoding:NSASCIIStringEncoding];
-  NSString *backspaceDeleteSequence = [[NSString alloc] initWithData:encodedSequence encoding:NSNonLossyASCIIStringEncoding];
-  while ([self.value fb_visualLength] != preClearTextLength) {
-    NSMutableString *textToType = @"".mutableCopy;
-    preClearTextLength = [self.value fb_visualLength];
-    for (NSUInteger i = 0 ; i < preClearTextLength ; i++) {
-      [textToType appendString:backspaceDeleteSequence];
+  static NSString *backspaceDeleteSequence;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    backspaceDeleteSequence = [[NSString alloc] initWithData:(NSData *)[@"\\u0008\\u007F" dataUsingEncoding:NSASCIIStringEncoding]
+                                                    encoding:NSNonLossyASCIIStringEncoding];
+  });
+  
+  NSUInteger retry = 0;
+  NSString *placeholderValue = self.placeholderValue;
+  NSUInteger preClearTextLength = [currentValue fb_visualLength];
+  do {
+    if (retry >= MAX_CLEAR_RETRIES - 1) {
+      // Last chance retry. Tripple-tap the field to select its content
+      [self tapWithNumberOfTaps:3 numberOfTouches:1];
+      return [FBKeyboard typeText:backspaceDeleteSequence error:error];
     }
-    if (textToType.length > 0 && ![FBKeyboard typeText:textToType error:error]) {
+
+    NSString *textToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
+    if (![FBKeyboard typeText:textToType error:error]) {
       return NO;
     }
-  }
+
+    currentValue = self.value;
+    if (nil != placeholderValue && [currentValue isEqualToString:placeholderValue]) {
+      // Short circuit if only the placeholder value left
+      return YES;
+    }
+    preClearTextLength = [currentValue fb_visualLength];
+
+    retry++;
+  } while (preClearTextLength > 0);
   return YES;
 }
 
